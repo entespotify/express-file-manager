@@ -39,12 +39,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}:armv6
-          labels: ${{ steps.meta.outputs.labels }}
-          builder: multi-platform
-          platforms: linux/arm/v6
+      - name: Build and push armv6 Docker image
+        run: |
+            docker buildx create --use
+            docker buildx inspect --bootstrap
+            docker buildx build --platform linux/arm/v6 --push -t ${{ steps.meta.outputs.tags }}:armv6 .
