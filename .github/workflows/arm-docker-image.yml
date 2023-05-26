@@ -43,4 +43,4 @@ jobs:
         run: |
             docker buildx create --use
             docker buildx inspect --bootstrap
-            docker buildx build --platform linux/arm/v6 --push -t ${{ steps.meta.outputs.tags }}:armv6 .
+            docker buildx build --platform linux/arm/v6 --push -t ${{ github.actor }}/${{ env.IMAGE_NAME }}:armv6 .
