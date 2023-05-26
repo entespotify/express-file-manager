@@ -1,4 +1,4 @@
-FROM node:16
+FROM arm32v6/node:16
 
 # Create app directory
 WORKDIR /usr/app
@@ -14,4 +14,4 @@ RUN npm install
 COPY . .
 
 EXPOSE 4000
-CMD [ "node", "server.js" ]
+CMD [ "node", "index.js" ]
