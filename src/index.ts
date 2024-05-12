@@ -1,4 +1,5 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import http from 'http';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -7,6 +8,9 @@ import authenticationRoutes from './controllers/authentication.controller.js';
 import logger from './middlewares/logger.js';
 import { authenticate } from './middlewares/authentication.middleware.js';
 import fileManagerRoutes from './controllers/fileManager.controller.js';
+
+//setting env file
+dotenv.config({path: "./.env"});
 
 const app = express();
 

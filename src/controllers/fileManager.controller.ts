@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { copyItems, createDirectory, getFiles } from '../services/fileManager.service.js';
+import { getRootPath } from '../utils/commons.js';
 
 const fileManagerRoutes = express.Router();
 
@@ -38,7 +39,7 @@ fileManagerRoutes.post("/upload/file", (req, res) => {
         let dest = req.body.dest;
         let storage = multer.diskStorage({
             destination: function(req, file, cb) {
-                cb(null, "D:/ubeapi");
+                cb(null, getRootPath());
             },
             filename: function(req, file, cb) {
                 cb(null, file.originalname);
