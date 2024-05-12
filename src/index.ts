@@ -1,45 +1,55 @@
-import { ApolloServer } from "@apollo/server";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import { randomUUID } from "crypto";
-const typeDefs = `
-  type Transaction {
-    id: ID
-    title: String
-    description: String
-    amount: Int
-  }
+import express from 'express';
+import http from 'http';
+// import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
 
-  type Query {
-    transactions: [Transaction]
-  }
-`;
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
-const transactions = [
-    {
-        id: randomUUID(),
-        title: "The Awakening",
-        description: "Kate Chopin",
-        amount: 2500,
-    },
-    {
-        id: randomUUID(),
-        title: "The Awakening",
-        description: "Kate Chopin",
-        amount: 2500,
-    },
-];
-const resolvers = {
-    Query: {
-        transactions: () => transactions,
-    },
-};
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-});
-const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
-});
-console.log(`🚀  Server ready at: ${url}`);
+import authenticationRoutes from './controllers/authentication.controller.js';
+import logger from './middlewares/logger.js';
+import { authenticate } from './middlewares/authentication.middleware.js';
+import fileManagerRoutes from './controllers/fileManager.controller.js';
+
+interface Context {
+	token?: string;
+	user?: any
+}
+
+const app = express();
+
+const httpServer = http.createServer(app);
+
+
+app.use(logger);
+
+// app.use((req, res, next) => {
+// 	res.setHeader('Access-Control-Allow-Origin', '*');
+// 	res.setHeader(
+// 		'Access-Control-Allow-Methods',
+// 		'GET, POST, PUT, DELETE, OPTIONS'
+// 	);
+// 	res.setHeader(
+// 		'Access-Control-Allow-Headers',
+// 		'Content-Type, Accept, X-Custom-Header, Authorization'
+// 	);
+// 	next();
+// });
+
+// app.use(cors<cors.CorsRequest>());
+
+app.use(cookieParser());
+
+app.use(bodyParser.json());
+
+// app.use(express.static('static'));
+
+app.use(authenticationRoutes);
+
+app.use(authenticate);
+
+app.use(fileManagerRoutes);
+
+
+// Modified server startup
+await new Promise<void>((resolve) => httpServer.listen({ port: 4000 }, resolve));
+
+console.log(`🚀 Server ready at http://localhost:4000/`);

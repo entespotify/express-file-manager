@@ -1,27 +1,36 @@
 {
-  "name": "graphql-server-example",
+  "name": "apollo-express-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "compile": "tsc",
+    "dev": "npm run compile && nodemon ./dist/index.js",
     "start": "npm run compile && node ./dist/index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "ankit",
+  "license": "MIT",
   "dependencies": {
     "@apollo/server": "^4.6.0",
     "apollo-server": "^3.12.0",
+    "cookie-parser": "^1.4.6",
     "date-fns": "^2.30.0",
+    "express": "^4.18.2",
     "graphql": "^16.6.0",
+    "jsonwebtoken": "^9.0.0",
     "knex": "^2.4.2",
+    "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.3",
+    "@types/jsonwebtoken": "^9.0.2",
+    "@types/multer": "^1.4.11",
     "@types/node": "^18.15.11",
+    "@types/uuid": "^9.0.2",
+    "nodemon": "^3.0.1",
     "typescript": "^5.0.4"
   }
 }
