@@ -1,11 +1,10 @@
-import mysql from "../db/connection.js";
 import { Users } from "../db/static-db.js";
 import { v4 as uuid } from "uuid";
 import { User } from "../utils/types.js";
 
 
 export async function getAllUsers() {
-    return await mysql("users").select("*");
+    return Users;
 }
 
 export async function isAuthenticated(email: string, password: string) {
