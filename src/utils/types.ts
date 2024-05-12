@@ -1,10 +1,3 @@
-
-export const MatchOperatorMapping = new Map([
-    ["equals", "="],
-    ["gt", ">"],
-    ["lt", "<"],
-]);
-
 declare global {
     namespace Express {
         interface Request {

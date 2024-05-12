@@ -1,9 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
+
 import { addNewUser, getUserByCredentials } from "./user.js";
 import {
     AUTH_SECRET_KEY,
-    JWT_EXPIRATION} from "../utils/constants.js";
+    JWT_EXPIRATION
+} from "../utils/constants.js";
 
 
 interface TypedRequestBody<T> extends Express.Request {

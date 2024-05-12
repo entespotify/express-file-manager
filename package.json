@@ -1,8 +1,8 @@
 {
-  "name": "apollo-express-server",
+  "name": "express-file-manager",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "light weight file manager made out of express",
+  "main": "./dist/index.js",
   "type": "module",
   "scripts": {
     "compile": "tsc",
@@ -12,17 +12,12 @@
   "author": "ankit",
   "license": "MIT",
   "dependencies": {
-    "@apollo/server": "^4.6.0",
-    "apollo-server": "^3.12.0",
     "cookie-parser": "^1.4.6",
     "date-fns": "^2.30.0",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
-    "graphql": "^16.6.0",
     "jsonwebtoken": "^9.0.0",
-    "knex": "^2.4.2",
     "multer": "^1.4.5-lts.1",
-    "mysql": "^2.18.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
