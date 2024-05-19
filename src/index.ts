@@ -19,7 +19,9 @@ const httpServer = http.createServer(app);
 
 const corsOptions = {
     origin: "http://localhost:3000",
-    optionsSuccessStatus: 200
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: "Content-type,Authorization",
+    credentials: true
 }
 
 
