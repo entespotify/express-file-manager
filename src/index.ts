@@ -17,12 +17,17 @@ const app = express();
 
 const httpServer = http.createServer(app);
 
+const corsOptions = {
+    origin: "http://localhost:3000",
+    optionsSuccessStatus: 200
+}
+
 
 app.use(logger);
 
-app.use(cors());
+app.use(cors(corsOptions));
 
-app.options('*', cors());
+app.options('*', cors(corsOptions));
 
 app.use(cookieParser());
 
