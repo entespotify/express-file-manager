@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import http from 'http';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 
@@ -18,6 +19,8 @@ const httpServer = http.createServer(app);
 
 
 app.use(logger);
+
+app.use(cors());
 
 app.use(cookieParser());
 

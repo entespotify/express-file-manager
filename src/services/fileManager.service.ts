@@ -8,6 +8,7 @@ export function getFiles() {
         let det = fs.statSync(getRootPath() + "/" + item);
         let type = det.isDirectory() ? "folder" : (det.isFile() ? "file" : "unknown");
         let thisItem = {
+            id: item,
             name: item,
             type: type,
             size: det.size,
@@ -41,7 +42,15 @@ export function moveItems(src: string, dest: string) {
 
 export function deleteItems(path: string) {
     try {
-        fs.rmSync(path);
+        if(fs.existsSync(getRootPath() + "/" + path)) {
+            if(fs.statSync(getRootPath() + "/" + path).isFile()) {
+                fs.rmSync(getRootPath() + "/" + path);
+            } else {
+                fs.rmdirSync(getRootPath() + "/" + path);
+            }
+        } else {
+            console.log("File doesn't exist");
+        }
     } catch (error) {
         console.log("Exception caught while deleting item:", error);
     }
