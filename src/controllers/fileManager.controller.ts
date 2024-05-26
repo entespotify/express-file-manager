@@ -1,12 +1,28 @@
 import express from 'express';
 import multer from 'multer';
-import { copyItems, createDirectory, deleteItems, getFiles } from '../services/fileManager.service.js';
-import { getRootPath } from '../utils/commons.js';
+import { copyItems, createDirectory, createDirectoryInPath, deleteItems, getFilesFrom } from '../services/fileManager.service.js';
+
+const destination = (req, file, cb) => {
+    let path = req.query.path;
+    cb(null, createDirectoryInPath(path));
+}
+
+const filename = (req, file, cb) => {
+    cb(null, file.originalname);
+}
+
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: destination,
+        filename: filename
+    })
+});
 
 const fileManagerRoutes = express.Router();
 
 fileManagerRoutes.get("/files", (req, res) => {
-    let files = getFiles();
+    let path: string = req.query.path?.toString();
+    let files = getFilesFrom(path);
     res.json({
         message: "hey from files",
         files: files
@@ -17,8 +33,9 @@ fileManagerRoutes.get("/files", (req, res) => {
 fileManagerRoutes.post("/create/directory", (req, res) => {
     try {
         let dirname = req.body.dirname;
+        let path = req.body.path;
         if(dirname) {
-            createDirectory(dirname);
+            createDirectory(dirname, path);
         }
         else {
             throw Error("No dir name");
@@ -34,31 +51,16 @@ fileManagerRoutes.post("/create/directory", (req, res) => {
     }
 });
 
-fileManagerRoutes.post("/upload/file", (req, res) => {
+fileManagerRoutes.post("/upload/file", upload.single('file'), (req, res) => {
     try {
-        let storage = multer.diskStorage({
-            destination: function(req, file, cb) {
-                cb(null, getRootPath());
-            },
-            filename: function(req, file, cb) {
-                cb(null, file.originalname);
-            }
-        });
-        let upload = multer({storage: storage}).single("file");
-        upload(req, res, function(err: any) {
-            if(err) {
-                console.log("Error occurred:", err);
-                return res.json({
-                    error: err
-                }).status(400);
-            }
-            return res.json({
-                message: "Upload successfull",
-                path: getRootPath()
-            }).status(201);
-        });
+        res.json({
+            message: "Uploaded"
+        }).status(201);
     } catch (error) {
         console.log("Exception occurred while uploading file", error);
+        res.json({
+            error: "Error occurred, check server logs"
+        }). status(400);
     }
 });
 
