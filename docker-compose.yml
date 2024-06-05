@@ -1,11 +1,12 @@
 version: '3.8'
 services:
   express-file-manager:
-    image: ghcr.io/entespotify/express-file-manager:main
+    image: ghcr.io/entespotify/express-file-manager-armv6:main
     environment:
       - BASE_DIR=/app
     ports:
       - "4000:4000"
     volumes:
       - /opt/file-manager:/app
-      
+    restart: always
+    container_name: file-manager-api
