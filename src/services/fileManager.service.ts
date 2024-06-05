@@ -50,8 +50,10 @@ export function createDirectoryInPath(dirPath: string) {
 
 export function copyItems(src: string, dest: string) {
     try {
+        let srcPath = path.join(getRootPath(), src);
+        let destPath = path.join(getRootPath(), dest);
         // fs.cpSync(src, dest);
-        fs.copyFileSync(src, dest);
+        fs.copyFileSync(srcPath, destPath);
     } catch (error) {
         console.log("Exception caught while copying item:", error);
     }
@@ -59,7 +61,9 @@ export function copyItems(src: string, dest: string) {
 
 export function moveItems(src: string, dest: string) {
     try {
-        fs.renameSync(src, dest);
+        let srcPath = path.join(getRootPath(), src);
+        let destPath = path.join(getRootPath(), dest);
+        fs.renameSync(srcPath, destPath);
     } catch (error) {
         console.log("Exception caught while moving item:", error);
     }

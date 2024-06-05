@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { copyItems, createDirectory, createDirectoryInPath, deleteItems, getFilesFrom } from '../services/fileManager.service.js';
+import { copyItems, createDirectory, createDirectoryInPath, deleteItems, getFilesFrom, moveItems } from '../services/fileManager.service.js';
 
 const destination = (req, file, cb) => {
     let path = req.query.path;
@@ -81,6 +81,27 @@ fileManagerRoutes.post("/copy", (req, res) => {
         console.log("Exception in copying file:", error.message);
         res.json({
             error: "Copy failed: " + error.message
+        }).status(400);
+    }
+});
+
+fileManagerRoutes.post("/move", (req, res) => {
+    try {
+        let src = req.body.src;
+        let dest = req.body.dest;
+        if(src && dest) {
+            moveItems(src, dest);
+            res.json({
+                message: "Moved successfully!"
+            }).status(200);
+        }
+        else {
+            throw Error("IO error: src or dest is invalid.")
+        }
+    } catch (error: Error|any) {
+        console.log("Exception in moving file:", error.message);
+        res.json({
+            error: "Move failed: " + error.message
         }).status(400);
     }
 });
