@@ -4,9 +4,11 @@ services:
     image: ghcr.io/entespotify/express-file-manager-armv6:main
     environment:
       - BASE_DIR=/app
+      - WEB_DIR=/web
     ports:
       - "4000:4000"
     volumes:
       - /opt/file-manager:/app
+      - /var/www/html:/web
     restart: always
     container_name: file-manager-api

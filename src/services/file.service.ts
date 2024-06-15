@@ -1,13 +1,14 @@
 import fs from "fs";
 import path from 'path';
-import { getRootPath } from "../utils/commons.js";
 
-export function getFilesFrom(path: string) {
+export function getFilesFrom(thisPath: string, volume: string) {
     let allItems = [];
     try {
-        let items = fs.readdirSync(getRootPath() + "/" + path);
+        let filesPath = path.join(volume, thisPath);
+        let items = fs.readdirSync(filesPath);
         items.map(item => {
-            let det = fs.statSync(getRootPath() + "/" + path + "/" + item);
+            let itemPath = path.join(volume, thisPath, item);
+            let det = fs.statSync(itemPath);
             let type = det.isDirectory() ? "folder" : (det.isFile() ? "file" : "unknown");
             let thisItem = {
                 id: item,
@@ -24,18 +25,19 @@ export function getFilesFrom(path: string) {
     return allItems;
 }
 
-export function createDirectory(dirname: string, path: string) {
+export function createDirectory(dirname: string, dirPath: string, volume: string) {
     try {
-        if(dirname && path) {
-            fs.mkdirSync(getRootPath() + path + "/" + dirname);
+        if(dirname && dirPath) {
+            let dirCreationPath = path.join(volume, dirPath, dirname)
+            fs.mkdirSync(dirCreationPath);
         } else throw Error("Invalid inputs");
     } catch (error) {
         console.log("Exception caught while making directory:", error.message);
     }
 }
 
-export function createDirectoryInPath(dirPath: string) {
-    let resultPath = getRootPath();
+export function createDirectoryInPath(dirPath: string, volume: string) {
+    let resultPath = volume;
     try {
         let joinedPath = path.join(resultPath , dirPath);
         if(dirPath && !fs.existsSync(joinedPath)) {
@@ -48,10 +50,10 @@ export function createDirectoryInPath(dirPath: string) {
     return resultPath;
 }
 
-export function copyItems(src: string, dest: string) {
+export function copyItems(src: string, dest: string, volume: string) {
     try {
-        let srcPath = path.join(getRootPath(), src);
-        let destPath = path.join(getRootPath(), dest);
+        let srcPath = path.join(volume, src);
+        let destPath = path.join(volume, dest);
         // fs.cpSync(src, dest);
         fs.copyFileSync(srcPath, destPath);
     } catch (error) {
@@ -59,23 +61,24 @@ export function copyItems(src: string, dest: string) {
     }
 }
 
-export function moveItems(src: string, dest: string) {
+export function moveItems(src: string, dest: string, volume: string) {
     try {
-        let srcPath = path.join(getRootPath(), src);
-        let destPath = path.join(getRootPath(), dest);
+        let srcPath = path.join(volume, src);
+        let destPath = path.join(volume, dest);
         fs.renameSync(srcPath, destPath);
     } catch (error) {
         console.log("Exception caught while moving item:", error);
     }
 }
 
-export function deleteItems(path: string) {
+export function deleteItems(deletionPath: string, volume: string) {
     try {
-        if (fs.existsSync(getRootPath() + "/" + path)) {
-            if (fs.statSync(getRootPath() + "/" + path).isFile()) {
-                fs.rmSync(getRootPath() + "/" + path);
+        let fullDeletionPath = path.join(volume, deletionPath);
+        if (fs.existsSync(fullDeletionPath)) {
+            if (fs.statSync(fullDeletionPath).isFile()) {
+                fs.rmSync(fullDeletionPath);
             } else {
-                fs.rmdirSync(getRootPath() + "/" + path, {recursive: true});
+                fs.rmdirSync(fullDeletionPath, {recursive: true});
             }
         } else {
             console.log("File doesn't exist");

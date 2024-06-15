@@ -1,11 +1,13 @@
 import express from 'express';
 import multer from 'multer';
 import { copyItems, createDirectory, createDirectoryInPath, deleteItems, getFilesFrom, moveItems } from '../services/file.service.js';
-import { getFilesRootPath } from '../utils/commons.js';
+import { getWebRootPath } from '../utils/commons.js';
+
+const webRoutes = express.Router();
 
 const destination = (req, file, cb) => {
     let path = req.query.path;
-    cb(null, createDirectoryInPath(path, getFilesRootPath()));
+    cb(null, createDirectoryInPath(path, getWebRootPath()));
 }
 
 const filename = (req, file, cb) => {
@@ -19,24 +21,22 @@ const upload = multer({
     })
 });
 
-const fileManagerRoutes = express.Router();
-
-fileManagerRoutes.get("/files", (req, res) => {
+webRoutes.get("/files", (req, res) => {
     let path: string = req.query.path?.toString();
-    let files = getFilesFrom(path, getFilesRootPath());
+    let files = getFilesFrom(path, getWebRootPath());
     res.json({
-        message: "hey from files",
+        path: path,
         files: files
     })
     .status(200);
 });
 
-fileManagerRoutes.post("/create/directory", (req, res) => {
+webRoutes.post("/create/directory", (req, res) => {
     try {
         let dirname = req.body.dirname;
         let path = req.body.path;
         if(dirname) {
-            createDirectory(dirname, path, getFilesRootPath());
+            createDirectory(dirname, path, getWebRootPath());
         }
         else {
             throw Error("No dir name");
@@ -52,7 +52,7 @@ fileManagerRoutes.post("/create/directory", (req, res) => {
     }
 });
 
-fileManagerRoutes.post("/upload/file", upload.single('file'), (req, res) => {
+webRoutes.post("/upload/file", upload.single('file'), (req, res) => {
     try {
         res.json({
             message: "Uploaded"
@@ -65,12 +65,12 @@ fileManagerRoutes.post("/upload/file", upload.single('file'), (req, res) => {
     }
 });
 
-fileManagerRoutes.post("/copy", (req, res) => {
+webRoutes.post("/copy", (req, res) => {
     try {
         let src = req.body.src;
         let dest = req.body.dest;
         if(src && dest) {
-            copyItems(src, dest, getFilesRootPath());
+            copyItems(src, dest, getWebRootPath());
             res.json({
                 message: "Copied successfully!"
             }).status(200);
@@ -86,12 +86,12 @@ fileManagerRoutes.post("/copy", (req, res) => {
     }
 });
 
-fileManagerRoutes.post("/move", (req, res) => {
+webRoutes.post("/move", (req, res) => {
     try {
         let src = req.body.src;
         let dest = req.body.dest;
         if(src && dest) {
-            moveItems(src, dest, getFilesRootPath());
+            moveItems(src, dest, getWebRootPath());
             res.json({
                 message: "Moved successfully!"
             }).status(200);
@@ -107,11 +107,11 @@ fileManagerRoutes.post("/move", (req, res) => {
     }
 });
 
-fileManagerRoutes.post("/delete", (req, res) => {
+webRoutes.post("/delete", (req, res) => {
     try {
         let path = req.body.path;
         if(path) {
-            deleteItems(path, getFilesRootPath());
+            deleteItems(path, getWebRootPath());
             res.json({
                 message: "Deleted successfully",
                 path: path
@@ -125,4 +125,4 @@ fileManagerRoutes.post("/delete", (req, res) => {
     }
 });
 
-export default fileManagerRoutes;
+export default webRoutes;

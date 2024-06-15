@@ -13,3 +13,5 @@ export const GLOBAL_COOKIE_EXPIRATION: number = 86_400_000;
 export const TEXT_HTML: string = "text/html";
 
 export const FS_ROOT_PATH_DEFAULT: string = "/usr/local";
+
+export const WEB_ROOT_PATH_DEFAULT: string = "/var/www/html";

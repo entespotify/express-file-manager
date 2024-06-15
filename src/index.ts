@@ -9,6 +9,7 @@ import authenticationRoutes from './controllers/authentication.controller.js';
 import logger from './middlewares/logger.js';
 import { authenticate } from './middlewares/authentication.middleware.js';
 import fileManagerRoutes from './controllers/fileManager.controller.js';
+import webRoutes from './controllers/web.controller.js';
 
 //setting env file
 dotenv.config({path: "./.env"});
@@ -40,6 +41,8 @@ app.use(authenticationRoutes);
 app.use(authenticate);
 
 app.use(fileManagerRoutes);
+
+app.use('/web', webRoutes);
 
 
 // Modified server startup
