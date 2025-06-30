@@ -1,6 +1,6 @@
 import express from 'express';
 import multer from 'multer';
-import { copyItems, createDirectory, createDirectoryInPath, deleteItems, getFilesFrom, moveItems } from '../services/file.service.js';
+import { copyItems, createDirectory, createDirectoryInPath, deleteItems, getFilesFrom, moveItems, downloadFile } from '../services/file.service.js';
 import { getFilesRootPath } from '../utils/commons.js';
 
 const destination = (req, file, cb) => {
@@ -122,6 +122,28 @@ fileManagerRoutes.post("/delete", (req, res) => {
         res.json({
             error: "Delete failed: " + error.message
         }).status(400);
+    }
+});
+
+fileManagerRoutes.get("/download", (req, res) => {
+    const filePath: string = req.query.path?.toString();
+    if (!filePath) {
+        res.status(400).json({ error: "Missing 'path' query parameter" });
+    }
+    const absPath = downloadFile(filePath, getFilesRootPath());
+    if (absPath) {
+        res.download(absPath, (err) => {
+            if (err) {
+                console.log("Error sending file:", err);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: "Failed to download file" });
+                }
+            }
+        });
+    } else {
+        if (!res.headersSent) {
+            res.status(404).json({ error: "File not found" });
+        }
     }
 });
 
