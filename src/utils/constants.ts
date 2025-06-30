@@ -1,8 +1,10 @@
+import type { StringValue } from "ms";
+
 export const DATE_FORMAT: string = "yyyy-MM-dd HH:mm:ss";
 
 export const AUTH_SECRET_KEY: string = "holypoopycrap";
 
-export const JWT_EXPIRATION: string = "1h";
+export const JWT_EXPIRATION: StringValue = "1h";
 
 export const AUTH_TOKEN: string = "X-EXPENSE";
 
