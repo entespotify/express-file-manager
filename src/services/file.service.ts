@@ -87,3 +87,18 @@ export function deleteItems(deletionPath: string, volume: string) {
         console.log("Exception caught while deleting item:", error);
     }
 }
+
+export function downloadFile(filePath: string, volume: string): string | null {
+    try {
+        const fullPath = path.join(volume, filePath);
+        if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+            return fullPath;
+        } else {
+            console.log("File does not exist or is not a file");
+            return null;
+        }
+    } catch (error) {
+        console.log("Exception caught while preparing file for download:", error);
+        return null;
+    }
+}
