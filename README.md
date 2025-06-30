@@ -10,45 +10,25 @@
 
 ### High-Level Architecture Diagram
 
-<!--
-If your Markdown renderer does not support Mermaid diagrams, you can use the text diagram below as a fallback.
+Simple Architecture Diagram:
 
-Text-based Architecture Diagram:
-
-Client (Browser/Postman)
-        |
-        v
-Express File Manager API
-  |      |      |
-  v      v      v
-Auth  FileMgr  WebMgr
-  |      |      |
-  v      v      v
- DB     FS     FS
-         |
-        ENV
-
--->
-
-```mermaid
-flowchart TD
-    Client[Client (Browser/Postman)]
-    API[Express File Manager API]
-    Auth[Authentication Controller]
-    FileMgr[File Manager Controller]
-    WebMgr[Web Controller]
-    DB[Static In-Memory DB]
-    FS[File System]
-    ENV[Environment Variables]
-
-    Client -->|HTTP Requests| API
-    API -->|/login, /signup| Auth
-    API -->|/files, /upload, etc.| FileMgr
-    API -->|/web/files, /web/upload, etc.| WebMgr
-    Auth --> DB
-    FileMgr --> FS
-    WebMgr --> FS
-    API --> ENV
+```
++---------------------+
+|  Client (Browser)   |
++---------------------+
+           |
+           v
++-----------------------------+
+|   Express File Manager API  |
++-----------------------------+
+      |        |        |
+      v        v        v
+  Auth   FileMgr   WebMgr
+   |        |        |
+   v        v        v
+  DB      FS       FS
+            |
+           ENV
 ```
 
 ### Main Components
