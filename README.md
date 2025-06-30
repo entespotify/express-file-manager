@@ -10,8 +10,28 @@
 
 ### High-Level Architecture Diagram
 
+<!--
+If your Markdown renderer does not support Mermaid diagrams, you can use the text diagram below as a fallback.
+
+Text-based Architecture Diagram:
+
+Client (Browser/Postman)
+        |
+        v
+Express File Manager API
+  |      |      |
+  v      v      v
+Auth  FileMgr  WebMgr
+  |      |      |
+  v      v      v
+ DB     FS     FS
+         |
+        ENV
+
+-->
+
 ```mermaid
-graph TD
+flowchart TD
     Client[Client (Browser/Postman)]
     API[Express File Manager API]
     Auth[Authentication Controller]
