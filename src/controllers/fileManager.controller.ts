@@ -25,7 +25,6 @@ fileManagerRoutes.get("/files", (req, res) => {
     let path: string = req.query.path?.toString();
     let files = getFilesFrom(path, getFilesRootPath());
     res.json({
-        message: "hey from files",
         files: files
     })
     .status(200);

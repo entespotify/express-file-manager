@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from 'path';
 
-export function getFilesFrom(thisPath: string, volume: string) {
+export function getFilesFrom(thisPath: string = '/', volume: string) {
     let allItems = [];
     try {
         let filesPath = path.join(volume, thisPath);

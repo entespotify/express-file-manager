@@ -1,121 +1,133 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from 'jsonwebtoken';
-
-import { addNewUser, getUserByCredentials } from "./user.js";
-import {
-    AUTH_SECRET_KEY,
-    JWT_EXPIRATION
-} from "../utils/constants.js";
-
-
-interface TypedRequestBody<T> extends Express.Request {
-    body: T
-}
+import { getAuthorizationUrl, exchangeCodeForTokens, refreshThisToken } from "../utils/oidc.js";
+import { verifyAccessToken } from "../utils/jwtVerify.js";
+import { AUTH_SCOPES_DEFAULT } from "../utils/constants.js";
 
 /**
- * Api login handler. Accepts credentials from request body and authenticates the user.
- * Sends back user details and authentication token if authenticated else responds with
- * 401.
- * @param req Express request
- * @param res Express response
- */
-export async function loginHandler(req: TypedRequestBody<{ email: string, password: string }>, res: Response) {
-    try {
-        let { email, password } = req.body;
-
-        if (email && password) {
-            let user = await getUserByCredentials(email, password);
-            let token: String;
-
-            if (user) {
-                token = jwt.sign(
-                    { userId: user.id, email: user.email },
-                    AUTH_SECRET_KEY,
-                    { expiresIn: JWT_EXPIRATION }
-                );
-
-                res.status(200).json({
-                    success: true,
-                    data: {
-                        userId: user.id,
-                        email: user.email,
-                        token: token,
-                    },
-                });
-            } else {
-                const error = Error("Incorrect credentials please try again!");
-                res.status(401).json(error);
-            }
-        }
-        else {
-            const error = Error("Invalid credentials!");
-            res.status(401).json(error);
-        }
-    } catch (err) {
-        console.log(err);
-        const error = new Error("Error! Something went wrong.");
-        res.status(500).json(error);
-    }
-}
-
-/**
- * Handles signup for new users.
- * @param req Express request
- * @param res Express response
- */
-export async function signupHandler(req: Request, res: Response) {
-    try {
-        let { name, email, password } = req.body;
-        if (name && email && password) {
-            let user = await addNewUser(name, email, password);
-            res.status(201).json(user);
-        }
-        else {
-            res.status(500).json({ error: "Invalid details." })
-        }
-    } catch (error) {
-        console.log("Error occurred while adding user: ", error);
-        res.status(500).send("Internal server error.");
-    }
-}
-
-/**
- * Handles authentication requests for authentication middleware.
+ * Middleware to handle authentication for protected routes.
+ * Verifies the access token provided in the Authorization header.
  * @param req Express request
  * @param res Express response
  * @param next Express next function
  */
 export function authenticationHandler(req: Request, res: Response, next: NextFunction) {
     try {
-        let { headers } = req;
-        let authHeader = headers.authorization;
-        //Handling api requests.
-        if (authHeader) {
-            let token = authHeader.split(' ')[1];
+        const authHeader = req.headers.authorization;
 
-            jwt.verify(token, AUTH_SECRET_KEY, (err: Error, user: any) => {
-                if (err) {
-                    return res.status(403).json({
-                        success: false,
-                        message: "Authentication failed!"
-                    });
-                }
-
-                req.user = user;
-                next();
-            });
-        } else {
-            res.status(401).json({
+        if (!authHeader) {
+            return res.status(401).json({
                 success: false,
-                message: "Unauthorized, Please login."
+                message: "Unauthorized, Please login.",
             });
         }
-    }
-    catch (error) {
-        console.log("Error occurred while authenticating:", error);
+
+        const token = authHeader.split(" ")[1];
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: "Token is missing in the Authorization header.",
+            });
+        }
+
+        verifyAccessToken(token)
+            .then(() => next())
+            .catch((error: Error) => {
+                console.error("Token verification failed:", error.message);
+                return res.status(403).json({
+                    success: false,
+                    message: "Token verification failed!",
+                });
+            });
+    } catch (error) {
+        console.error("Error occurred while authenticating:", error);
         res.status(500).json({
-            error: "Internal server error."
-        })
+            success: false,
+            message: "Internal server error.",
+        });
     }
 }
+
+/**
+ * Handles login requests by generating an authorization URL.
+ * @param req Express request
+ * @param res Express response
+ */
+export async function login(req: Request, res: Response) {
+    try {
+        const { redirectUri, scope = AUTH_SCOPES_DEFAULT } = req.body;
+
+        if (!redirectUri) {
+            return res.status(400).json({
+                success: false,
+                message: "Redirect URI is required.",
+            });
+        }
+
+        const { url, state } = await getAuthorizationUrl(scope, redirectUri);
+        res.json({ authUrl: url.href, state });
+    } catch (error) {
+        console.error("Login failed:", error);
+        res.status(500).json({
+            success: false,
+            message: "Login failed due to an internal error.",
+        });
+    }
+}
+
+/**
+ * Handles the callback from the authorization server.
+ * Exchanges the authorization code for tokens.
+ * @param req Express request
+ * @param res Express response
+ */
+export async function callback(req: Request, res: Response) {
+    const { redirectUri } = req.body;
+
+    if (!redirectUri) {
+        return res.status(400).json({
+            success: false,
+            message: "Code, redirectUri, and state are required.",
+        });
+    }
+
+    try {
+        const tokens = await exchangeCodeForTokens(redirectUri);
+        res.json(tokens);
+    } catch (error) {
+        console.error("Token exchange failed:", error);
+        res.status(400).json({
+            success: false,
+            message: "Token exchange failed. Please check your request.",
+        });
+    }
+}
+
+/**
+ * Handles token refresh requests.
+ * Exchanges a refresh token for new tokens.
+ * @param req Express request
+ * @param res Express response
+ */
+export async function refresh(req: Request, res: Response) {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(400).json({
+            success: false,
+            message: "Refresh token is required.",
+        });
+    }
+
+    try {
+        const tokens = await refreshThisToken(refreshToken);
+        res.json(tokens);
+    } catch (error) {
+        console.error("Refresh token exchange failed:", error);
+        res.status(401).json({
+            success: false,
+            message: "Refresh token exchange failed. Please login again.",
+        });
+    }
+}
+
 
