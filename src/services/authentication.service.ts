@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { getAuthorizationUrl, exchangeCodeForTokens, refreshTokenFlow } from "../utils/oidc.js";
+import { getAuthorizationUrl, exchangeCodeForTokens, refreshThisToken } from "../utils/oidc.js";
 import { verifyAccessToken } from "../utils/jwtVerify.js";
+import { AUTH_SCOPES_DEFAULT } from "../utils/constants.js";
 
 /**
  * Middleware to handle authentication for protected routes.
@@ -53,7 +54,7 @@ export function authenticationHandler(req: Request, res: Response, next: NextFun
  */
 export async function login(req: Request, res: Response) {
     try {
-        const { redirectUri, scope = "read write" } = req.body;
+        const { redirectUri, scope = AUTH_SCOPES_DEFAULT } = req.body;
 
         if (!redirectUri) {
             return res.status(400).json({
@@ -80,9 +81,9 @@ export async function login(req: Request, res: Response) {
  * @param res Express response
  */
 export async function callback(req: Request, res: Response) {
-    const { code, redirectUri, state } = req.body;
+    const { redirectUri } = req.body;
 
-    if (!code || !redirectUri || !state) {
+    if (!redirectUri) {
         return res.status(400).json({
             success: false,
             message: "Code, redirectUri, and state are required.",
@@ -90,7 +91,7 @@ export async function callback(req: Request, res: Response) {
     }
 
     try {
-        const tokens = await exchangeCodeForTokens(code, redirectUri, state);
+        const tokens = await exchangeCodeForTokens(redirectUri);
         res.json(tokens);
     } catch (error) {
         console.error("Token exchange failed:", error);
@@ -118,7 +119,7 @@ export async function refresh(req: Request, res: Response) {
     }
 
     try {
-        const tokens = await refreshTokenFlow(refreshToken);
+        const tokens = await refreshThisToken(refreshToken);
         res.json(tokens);
     } catch (error) {
         console.error("Refresh token exchange failed:", error);

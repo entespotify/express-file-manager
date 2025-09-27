@@ -1,4 +1,7 @@
+import dotenv from 'dotenv';
 import { FS_ROOT_PATH_DEFAULT } from "./constants.js";
+
+dotenv.config();
 
 /**
  * Gets the root path for file operations.

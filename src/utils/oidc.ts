@@ -54,21 +54,26 @@ export async function getAuthorizationUrl(scope: string, redirect_uri: string) {
 
 /**
  * Exchanges an authorization code for tokens.
- * @param code The authorization code received from the authorization server.
- * @param redirect_uri The redirect URI used in the authorization request.
- * @param expectedState The expected state to validate against.
+ * @param redirectUri The full redirect URI containing the authorization code and state as query parameters.
  * @returns The token response containing access and refresh tokens.
- * @throws Error if the token exchange fails.
+ * @throws Error if the token exchange fails or required query parameters are missing.
  */
 export async function exchangeCodeForTokens(
-	code: string,
-	redirect_uri: string,
-	expectedState: string
+	redirectUri: string
 ): Promise<client.TokenEndpointResponse> {
 	try {
+		const url = new URL(redirectUri);
+		const code = url.searchParams.get("code");
+		const state = url.searchParams.get("state");
+
+		// Validate that both `code` and `state` are present
+		if (!code || !state) {
+			throw new Error("Missing 'code' or 'state' in the redirect URI query parameters.");
+		}
+
 		const cfg = await getOIDCConfig();
-		const tokens = await client.authorizationCodeGrant(cfg, new URL(redirect_uri), {
-			expectedState,
+		const tokens = await client.authorizationCodeGrant(cfg, url, {
+			expectedState: state,
 		});
 		return tokens;
 	} catch (error) {
@@ -79,14 +84,14 @@ export async function exchangeCodeForTokens(
 
 /**
  * Refreshes an access token using a refresh token.
- * @param refresh_token The refresh token to use for obtaining new tokens.
+ * @param refreshToken The refresh token to use for obtaining new tokens.
  * @returns The token response containing new access and refresh tokens.
  * @throws Error if the token refresh process fails.
  */
-export async function refreshTokenFlow(refresh_token: string): Promise<client.TokenEndpointResponse> {
+export async function refreshThisToken(refreshToken: string): Promise<client.TokenEndpointResponse> {
 	try {
 		const cfg = await getOIDCConfig();
-		const tokens = await client.refreshTokenGrant(cfg, refresh_token);
+		const tokens = await client.refreshTokenGrant(cfg, refreshToken);
 		return tokens;
 	} catch (error) {
 		console.error("Failed to refresh tokens:", error.message);
