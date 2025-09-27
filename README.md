@@ -83,8 +83,16 @@ docker-compose up
 
 ## Environment Variables
 
-- `BASE_DIR`: Root directory for file manager operations (default: `/usr/local/`)
-- `WEB_DIR`: Root directory for web operations (default: `/var/www/html`)
+The following environment variables are required for the application:
+
+- **File Manager Configuration**:
+  - `BASE_DIR`: Root directory for file manager operations (default: `/usr/local/`).
+  - `WEB_DIR`: Root directory for web operations (default: `/var/www/html`).
+
+- **Authentication Configuration**:
+  - `AUTH_SERVER_ADDRESS`: The base URL of the authentication server.
+  - `AUTH_CLIENT_ID`: The client ID for the authentication server.
+  - `AUTH_CLIENT_SECRET`: The client secret for the authentication server.
 
 ---
 
@@ -93,45 +101,60 @@ docker-compose up
 ### Authentication
 
 #### `POST /login`
-Authenticate a user and receive a JWT token.
+Generates an authorization URL for user login.
 
 **Request Body:**
 ```json
 {
-  "email": "user@example.com",
-  "password": "password"
-}
-```
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "userId": "001",
-    "email": "user@example.com",
-    "token": "<JWT>"
-  }
+  "redirectUri": "http://localhost:3000/callback",
+  "scope": "read write"
 }
 ```
 
-#### `POST /signup`
-Register a new user.
+**Response:**
+```json
+{
+  "authUrl": "http://auth-server/o/authorize?client_id=...",
+  "state": "random-generated-state"
+}
+```
+
+#### `POST /callback`
+Handles the callback from the authorization server and exchanges the authorization code for tokens.
 
 **Request Body:**
 ```json
 {
-  "name": "User Name",
-  "email": "user@example.com",
-  "password": "password"
+  "code": "authorization-code",
+  "redirectUri": "http://localhost:3000/callback",
+  "state": "random-generated-state"
 }
 ```
+
 **Response:**
 ```json
 {
-  "id": "generated-uuid",
-  "email": "user@example.com",
-  "password": "password",
-  "name": "User Name"
+  "accessToken": "<access_token>",
+  "refreshToken": "<refresh_token>",
+  "idToken": "<id_token>"
+}
+```
+
+#### `POST /refresh`
+Refresh an access token using a refresh token.
+
+**Request Body:**
+```json
+{
+  "refreshToken": "<refresh_token>"
+}
+```
+
+**Response:**
+```json
+{
+  "accessToken": "<new_access_token>",
+  "refreshToken": "<new_refresh_token>"
 }
 ```
 
@@ -204,6 +227,12 @@ Delete a file or folder.
 }
 ```
 
+#### `GET /download?path=<path>`
+Download a file from the specified path.
+
+**Response:**
+- Returns the file as a downloadable attachment.
+
 ---
 
 ### Web Root File Manager
@@ -222,11 +251,7 @@ Example: `GET /web/files?path=/`
 - `src/controllers/web.controller.ts`
 - `src/services/authentication.service.ts`
 - `src/services/file.service.ts`
-- `src/services/user.ts`
-- `src/db/static-db.ts`
 - `src/utils/constants.ts`
 - `src/utils/commons.ts`
-- `src/utils/types.ts`
-
 ---
 

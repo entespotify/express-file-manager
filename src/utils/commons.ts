@@ -1,27 +1,57 @@
 import { FS_ROOT_PATH_DEFAULT } from "./constants.js";
 
-export function validateEmail(email: string) {
-    var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    if (email.match(mailformat)) {
-        return true;
-    }
-    else {
-        return false;
-    }
+/**
+ * Gets the root path for file operations.
+ * @returns The root path for files.
+ */
+export function getFilesRootPath(): string {
+    return process.env.BASE_DIR || FS_ROOT_PATH_DEFAULT;
 }
 
 /**
- * Gets the root path for files
- * @returns root path for files
+ * Gets the root path for web operations.
+ * @returns The root path for web files.
  */
-export function getFilesRootPath() {
-    return (process.env.BASE_DIR ? process.env.BASE_DIR : FS_ROOT_PATH_DEFAULT);
+export function getWebRootPath(): string {
+    return process.env.WEB_DIR || FS_ROOT_PATH_DEFAULT;
 }
 
 /**
- * Gets the root path for web
- * @returns root path for web
+ * Gets the authentication server address from environment variables.
+ * @returns The authentication server address.
+ * @throws Error if the environment variable is not set.
  */
-export function getWebRootPath() {
-    return (process.env.WEB_DIR ? process.env.WEB_DIR : FS_ROOT_PATH_DEFAULT);
+export function getAuthServerAddress(): string {
+    if (!process.env.AUTH_SERVER_ADDRESS) {
+        console.error("Authentication server address is not set in environment variables.");
+        throw new Error("AUTH_SERVER_ADDRESS is not defined.");
+    }
+    return process.env.AUTH_SERVER_ADDRESS;
 }
+
+/**
+ * Gets the authentication client ID from environment variables.
+ * @returns The authentication client ID.
+ * @throws Error if the environment variable is not set.
+ */
+export function getAuthClientId(): string {
+    if (!process.env.AUTH_CLIENT_ID) {
+        console.error("Authentication client ID is not set in environment variables.");
+        throw new Error("AUTH_CLIENT_ID is not defined.");
+    }
+    return process.env.AUTH_CLIENT_ID;
+}
+
+/**
+ * Gets the authentication client secret from environment variables.
+ * @returns The authentication client secret.
+ * @throws Error if the environment variable is not set.
+ */
+export function getAuthClientSecret(): string {
+    if (!process.env.AUTH_CLIENT_SECRET) {
+        console.error("Authentication client secret is not set in environment variables.");
+        throw new Error("AUTH_CLIENT_SECRET is not defined.");
+    }
+    return process.env.AUTH_CLIENT_SECRET;
+}
+

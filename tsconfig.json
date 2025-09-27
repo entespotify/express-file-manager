@@ -5,11 +5,13 @@
     ],
     "outDir": "dist",
     "lib": [
-      "es2020"
+      "es2020",
+      "DOM"
     ],
     "target": "es2020",
     "module": "esnext",
     "moduleResolution": "node",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["node"]
   }
 }
