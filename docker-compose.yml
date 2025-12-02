@@ -5,6 +5,10 @@ services:
     environment:
       - BASE_DIR=/app
       - WEB_DIR=/web
+      - ISSUER=https://sso-provider.com
+      - JWKS_URI=https://sso-provider.com/o/.well-known/jwks.json
+      - AUDIENCE=sso-audience
+      - PORT=4000
     ports:
       - "4000:4000"
     volumes:

@@ -85,6 +85,9 @@ docker-compose up
 
 The following environment variables are required for the application:
 
+- **Generic Configuration**:
+  - `PORT`: 4000
+
 - **File Manager Configuration**:
   - `BASE_DIR`: Root directory for file manager operations (default: `/usr/local/`).
   - `WEB_DIR`: Root directory for web operations (default: `/var/www/html`).
@@ -93,6 +96,9 @@ The following environment variables are required for the application:
   - `AUTH_SERVER_ADDRESS`: The base URL of the authentication server.
   - `AUTH_CLIENT_ID`: The client ID for the authentication server.
   - `AUTH_CLIENT_SECRET`: The client secret for the authentication server.
+  - `ISSUER` : https://sso-provider.com
+  - `JWKS_URI` : https://sso-provider.com/o/.well-known/jwks.json
+  - `AUDIENCE` : soo-audience-setting
 
 ---
 
