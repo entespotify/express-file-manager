@@ -12,6 +12,7 @@
   "author": "ankit",
   "license": "MIT",
   "dependencies": {
+    "@entespotify/express-token-verifier": "^0.0.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "date-fns": "^2.30.0",
